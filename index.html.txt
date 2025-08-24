@@ -1,0 +1,12 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<title>Dnoak's page</title>
+</head>
+<body>
+
+<h1>Hello!</h1>
+<p>Here are the beginnings of my page.</p>
+
+</body>
+</html> 
