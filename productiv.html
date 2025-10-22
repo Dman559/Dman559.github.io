@@ -1,101 +1,123 @@
 <!DOCTYPE html>
 <html>
 
-    <head>
-        <title>Dnoak's page</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link type="text/css" rel="stylesheet" href="styles.css"></link>
-    </head>
+<head>
+    <title>Dnoak's page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="text/css" rel="stylesheet" href="styles.css">
+    </link>
+</head>
 
-    <body>
-        <p>A simple productivity tool: Track time spent doing constructive things and deduct from it while doing recreational things.</p>
-        <h1 id="clock">00:30:00</h1>
-        <ul>
-            <li>
-                <button onclick="productiveClick()">productive</button>
-                <button onclick="destructiveClick()">destructive</button>
-            </li>
-            <br>
-            <li>
-                <button onclick = "goClick()">go</button>
-                <button onclick = "stopClick()">stop</button>
-                <button onclick="millisToClock(7441000)">test</button>
-            </li>
-        </ul>
-        <script>
-            var cookies = document.cookie;
-            var tickID = 0;
-            var plusOrMinus = 1;
-                window.onload = function () {
-                    console.log("Page loaded with cookies: "+cookies);
-                    if(cookies == null || !cookies.includes("totalTime")){
-                        document.cookie = "totalTime="+document.getElementById("clock");
+<body>
+    <p>A simple productivity tool: Track time spent doing constructive things and deduct from it while doing
+        recreational things.</p>
+    <h1 id="clock">00:30:00</h1>
+    <ul>
+        <li>
+            <button onclick="productiveClick()">productive</button>
+            <button onclick="destructiveClick()">destructive</button>
+        </li>
+        <br>
+        <li>
+            <button id="goButton" onclick="goClick()">go</button>
+            <button id="stopButton" onclick="stopClick()" disabled="true">stop</button>
+        </li>
+    </ul>
+    <script>
+        var cookies = document.cookie;
+        var tickID = 0;
+        var plusOrMinus = 1;
+        window.onload = function () {
+            console.log("Page loaded with cookies: " + cookies);
+            //If the user does not have a totalTime cookie, initialize to the value in clock
+            if (cookies == null || !cookies.includes("totalTime")) {
+                document.cookie = "totalTime=" + document.getElementById("clock");
+            }
+            //else, initialize the clock to their cookie value. TODO: separate frontend and logic...
+            else {
+                cookies=cookies.split(";");
+                totalTimeCookie="";
+                i=0;
+                while(totalTimeCookie==""){
+                    if(cookies[i].startsWith("totalTime")){
+                        totalTimeCookie=cookies[i];
                     }
-                  
-                  console.log(document.cookie);
-                };
-                function productiveClick()
-                {
-                    console.log("Productive clicked");
-                    plusOrMinus=1;
+                    else
+                    i++;
                 }
-                function destructiveClick()
-                {
-                    console.log("destructive Clicked");
-                    plusOrMinus=-1;
-                }
-                function goClick()
-                {
-                    tickID=setInterval(tick,1000);
-                    console.log("go clicked "+tickID);
-                }
-                function stopClick()
-                {
-                    clearInterval(tickID);
-                    console.log("stop clicked "+tickID);
-                }
-                function clockToMillis(clock)
-                {
-                    var millis = 0;
-                    console.log("From c2m:"+clock);
-                    var clockParts=clock.split(":");
-                    console.log(clockParts);
-                    millis += clockParts[0]*60*60*1000;
-                    millis += clockParts[1]*60*1000;
-                    millis += clockParts[2]*1000;
-                    console.log(millis);
-                    return millis;
-                }
-                function millisToClock(millis)
-                {
-                    originalMillis=millis;
-                    hours=Math.floor(millis/3600000);
-                    //add leading zero to hours as needed
-                    hoursAsText=hours/10>1?''+hours:'0'+hours;
-                    millis=millis%3600000;
-                    minutes=Math.floor(millis/60000);
-                    //add leading 0s to minutes
-                    minutesAsText=minutes/10>1?''+minutes:'0'+minutes;
-                    millis=millis%60000;
-                    seconds=Math.floor(millis/1000);
-                    //leading zero to seconds 
-                    secondsAsText=seconds/10>1?''+seconds:'0'+seconds
-                    output=(hoursAsText+":"+minutesAsText+":"+secondsAsText);
-                    console.log(output);
-                    return output;
+                document.getElementById("clock").innerText=totalTimeCookie.split('=')[1];
+            }
 
-                }
-                function tick()
-                {
-                    time = document.getElementById("clock").innerText;
-                    millis = clockToMillis(time);
-                    millis += plusOrMinus*1000;
-                    time=millisToClock(millis);
-                    document.getElementById("clock").innerText=time;
-                    document.cookie=("totalTime="+time);
-                }
-        </script>
-    </body>
+            console.log(document.cookie);
+        };
+        function productiveClick() {
+            console.log("Productive clicked");
+            plusOrMinus = 1;
+        }
+        function destructiveClick() {
+            console.log("destructive Clicked");
+            plusOrMinus = -1;
+        }
+        function goClick() {
+            tickID = setInterval(tick, 1000);
+            document.getElementById("goButton").disabled = true;
+            document.getElementById("stopButton").disabled = false;
+            console.log("go clicked " + tickID);
+        }
+        function stopClick() {
+            clearInterval(tickID);
+            document.getElementById("goButton").disabled = false;
+            document.getElementById("stopButton").disabled = true;
+            console.log("stop clicked " + tickID);
+        }
+        /**
+        * Turns clock strings formatted as HH:MM:SS into integer milliseconds
+        * @param {number} clock the time string formatted as HH:MM:SS.
+        * Note there is no support for anything above 99:99:99
+        */
+        function clockToMillis(clock) {
+            var millis = 0;
+            console.log("From c2m:" + clock);
+            var clockParts = clock.split(":");
+            console.log(clockParts);
+            millis += clockParts[0] * 60 * 60 * 1000;
+            millis += clockParts[1] * 60 * 1000;
+            millis += clockParts[2] * 1000;
+            console.log(millis);
+            return millis;
+        }
+        /**
+         * converts a number of milliseconds to human-readable HH:MM:SS string
+         * @param {number} millis milliseconds to be converted to HH:MM:SS string
+         */
+        function millisToClock(millis) {
+            originalMillis = millis;
+            hours = Math.floor(millis / 3600000);
+            //add leading zero to hours as needed
+            hoursAsText = hours / 10 > 1 ? '' + hours : '0' + hours;
+            millis = millis % 3600000;
+            minutes = Math.floor(millis / 60000);
+            //add leading 0s to minutes
+            minutesAsText = minutes / 10 > 1 ? '' + minutes : '0' + minutes;
+            millis = millis % 60000;
+            seconds = Math.floor(millis / 1000);
+            //leading zero to seconds 
+            secondsAsText = seconds / 10 > 1 ? '' + seconds : '0' + seconds
+            output = (hoursAsText + ":" + minutesAsText + ":" + secondsAsText);
+            console.log(output);
+            return output;
+
+        }
+        function tick() {
+            time = document.getElementById("clock").innerText;
+            millis = clockToMillis(time);
+            millis += plusOrMinus * 1000;
+            time = millisToClock(millis);
+            document.getElementById("clock").innerText = time;
+            document.cookie = ("totalTime=" + time);
+        }
+    </script>
+</body>
 
 
 </html>
