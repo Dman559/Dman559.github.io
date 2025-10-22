@@ -6,21 +6,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="text/css" rel="stylesheet" href="styles.css">
     </link>
+    <link type="text/css" rel="stylesheet" href="productivStyles.css">
+    </link>
+
 </head>
 
 <body>
+    <nav>
+       <ul>
+				<li><a href="index.html">Home</a></li>
+				<li><a href="">about</a></li>
+				<li><a href="blog.html">blog</a></li>
+				<li><a href="projects.html">projects</a></li>
+			</ul>
+    </nav>
+
     <p>A simple productivity tool: Track time spent doing constructive things and deduct from it while doing
-        recreational things.</p>
-    <h1 id="clock">00:30:00</h1>
+        recreational things. I'd like to expand on this at some point. Maybe add a login flow and hook it up to
+        a database so that users can track their time on multiple devices.
+    </p>
+    <h6>Current Limitations:</h6>
+    <p> This whole thing leans on one cookie. Users can easily cheat it. As outlined above, this is limited to 
+        tracking per device. Not great in the age of smartphones and laptops. Oh well... Also could have separated
+        ui and logic a little better.
+    </p>
+
+
     <ul>
         <li>
-            <button onclick="productiveClick()">productive</button>
-            <button onclick="destructiveClick()">destructive</button>
+            <h1 id="clock" class="clock">00:30:00</h1>
         </li>
-        <br>
         <li>
-            <button id="goButton" onclick="goClick()">go</button>
-            <button id="stopButton" onclick="stopClick()" disabled="true">stop</button>
+            <button onclick="productiveClick()" class="greenButton">productive</button>
+            <button onclick="destructiveClick()" class="redButton">destructive</button>
+        </li>
+        <li>
+            <button id="goButton" onclick="goClick()" class="greenButton">go</button>
+            <button id="stopButton" onclick="stopClick()" disabled="true" class="redButton">stop</button>
         </li>
     </ul>
     <script>
@@ -35,17 +57,17 @@
             }
             //else, initialize the clock to their cookie value. TODO: separate frontend and logic...
             else {
-                cookies=cookies.split(";");
-                totalTimeCookie="";
-                i=0;
-                while(totalTimeCookie==""){
-                    if(cookies[i].startsWith("totalTime")){
-                        totalTimeCookie=cookies[i];
+                cookies = cookies.split(";");
+                totalTimeCookie = "";
+                i = 0;
+                while (totalTimeCookie == "") {
+                    if (cookies[i].startsWith("totalTime")) {
+                        totalTimeCookie = cookies[i];
                     }
                     else
-                    i++;
+                        i++;
                 }
-                document.getElementById("clock").innerText=totalTimeCookie.split('=')[1];
+                document.getElementById("clock").innerText = totalTimeCookie.split('=')[1];
             }
 
             console.log(document.cookie);
@@ -53,10 +75,13 @@
         function productiveClick() {
             console.log("Productive clicked");
             plusOrMinus = 1;
+            document.getElementById("clock").style.backgroundColor="green";
         }
         function destructiveClick() {
             console.log("destructive Clicked");
             plusOrMinus = -1;
+            document.getElementById("clock").style.backgroundColor="darkred";
+
         }
         function goClick() {
             tickID = setInterval(tick, 1000);
@@ -94,15 +119,15 @@
             originalMillis = millis;
             hours = Math.floor(millis / 3600000);
             //add leading zero to hours as needed
-            hoursAsText = hours / 10 > 1 ? '' + hours : '0' + hours;
+            hoursAsText = hours / 10 >= 1 ? '' + hours : '0' + hours;
             millis = millis % 3600000;
             minutes = Math.floor(millis / 60000);
             //add leading 0s to minutes
-            minutesAsText = minutes / 10 > 1 ? '' + minutes : '0' + minutes;
+            minutesAsText = minutes / 10 >= 1 ? '' + minutes : '0' + minutes;
             millis = millis % 60000;
             seconds = Math.floor(millis / 1000);
             //leading zero to seconds 
-            secondsAsText = seconds / 10 > 1 ? '' + seconds : '0' + seconds
+            secondsAsText = seconds / 10 >= 1 ? '' + seconds : '0' + seconds
             output = (hoursAsText + ":" + minutesAsText + ":" + secondsAsText);
             console.log(output);
             return output;
